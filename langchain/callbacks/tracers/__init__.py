@@ -9,5 +9,5 @@ __all__ = [
     "LangChainTracer",
     "LangChainTracerV1",
     "ConsoleCallbackHandler",
-    "HumanloopTracer"
+    "HumanloopTracer",
 ]

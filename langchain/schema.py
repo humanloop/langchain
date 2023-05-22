@@ -75,7 +75,7 @@ class BaseMessage(BaseModel):
     def type(self) -> str:
         """Type of the message, used for serialization."""
 
-    def dict(self,  **kwargs: Any) -> Dict:
+    def dict(self, **kwargs: Any) -> Dict:
         _dict = super().dict()
         _dict["_type"] = self.type
         return _dict

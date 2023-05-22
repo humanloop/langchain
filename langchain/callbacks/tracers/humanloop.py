@@ -30,11 +30,12 @@ ROLE_MAPPING = {"ai": "assistant", "human": "user", "system": "system"}
 
 
 class HumanloopTracer(BaseTracer, ABC):
-    """An implementation of BaseTracer that logs trace data to the Humanloop API
+    """An implementation of BaseTracer that logs trace data to the Humanloop API.
 
     Inherits from ABC to avoid having to implement all the base abstract methods, some
     of which seem redundant.
     """
+
     _headers: Dict[str, Any] = {"Content-Type": "application/json"}
     if os.getenv("HUMANLOOP_URL"):
         _base_url = os.getenv("HUMANLOOP_URL")
@@ -168,7 +169,7 @@ class HumanloopTracer(BaseTracer, ABC):
 
     @staticmethod
     def _convert_chain_outputs_to_text(outputs: Dict[str, Any]) -> str:
-        """ Convert LC dictionary outputs to a string required by the HL API."""
+        """Convert LC dictionary outputs to a string required by the HL API."""
         output = ""
         for key, value in outputs.items():
             # TODO: check are there other data types to deal with
@@ -179,7 +180,7 @@ class HumanloopTracer(BaseTracer, ABC):
 
     @staticmethod
     def _convert_chain_inputs_to_text(inputs: Dict[str, Any]) -> Dict[str, str]:
-        """ Convert LC list inputs to a string required by the HL API."""
+        """Convert LC list inputs to a string required by the HL API."""
         new_inputs = {}
         for key, value in inputs.items():
             # TODO: check are there other data types to deal with
@@ -192,16 +193,14 @@ class HumanloopTracer(BaseTracer, ABC):
     def _convert_provider_parameters(
         llm_type: str, params: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        """
-        Convert provider specific parameters to the HL common model parameters.
+        """Convert provider specific parameters to the HL common model parameters.
 
-        Return a tuple of Humanloop parameters and any parameters not mapped.
-        """
+        Return a tuple of Humanloop parameters and any parameters not mapped."""
         if not params:
             return {}, {}
         params = copy.deepcopy(params)
         # use startswith because LC has patterns 'openai', 'openai-chat' as _llm_types
-        # TODO: Don't want to rely on string ops for getting provider and endpoint,
+        # TODO: Don't want to rely on string ops for getting provider,
         #  suggest to have separate 'provider' and 'mode' (complete or chat) instead
         #  of just _llm_type
         if llm_type.startswith("openai"):
@@ -237,7 +236,6 @@ class HumanloopTracer(BaseTracer, ABC):
         hl_params = {
             **mapped_params,
             "provider": provider,
-            "endpoint": "chat" if llm_type.endswith("chat") else "complete",
         }
         return hl_params, params
 
@@ -304,7 +302,7 @@ class HumanloopTracer(BaseTracer, ABC):
 
     @staticmethod
     def _get_tool_source_from_function(tool_name: str, tool_function: Callable) -> str:
-        """ Get the source code for a tool function."""
+        """Get the source code for a tool function."""
         try:
             return inspect.getsource(tool_function)
         except Exception as _:
@@ -340,17 +338,16 @@ class HumanloopTracer(BaseTracer, ABC):
     def _convert_template_to_hl_syntax(template: str, template_format: str) -> str:
         """Converts LC template to HL double curly bracket syntax"""
         if template_format == "f-string":
-            # Match the f-string syntax with single curly brackets
-            pattern = r'{([^{}]+)}'
+            # match the f-string syntax with single curly brackets
+            pattern = r"{([^{}]+)}"
 
-            # Replaces f-string syntax with Jinja2 syntax
+            # replaces f-string syntax with Jinja2 syntax
             def replace(match):
-                return '{{{{ {} }}}}'.format(
-                    match.group(1))
+                return "{{{{ {} }}}}".format(match.group(1))
 
             return re.sub(pattern, replace, template)
         elif template_format == "jinja2":
-            # I believe jinja2 already uses double curly brackets?
+            # jinja2 already uses double curly brackets
             return template
         else:
             logging.info(f"Unknown template format: {template_format}")
@@ -377,6 +374,7 @@ class HumanloopTracer(BaseTracer, ABC):
                         )
                         for message in prompt_details["messages"]
                     ],
+                    endpoints="chat",
                     **hl_params,
                 )
             else:
@@ -385,6 +383,7 @@ class HumanloopTracer(BaseTracer, ABC):
                         template=prompt_details["template"],
                         template_format=prompt_details["template_format"],
                     ),
+                    endpoint="complete",
                     **hl_params,
                 )
         else:
@@ -417,7 +416,7 @@ class HumanloopTracer(BaseTracer, ABC):
                         raise NotImplementedError
                     logs.append(
                         # TODO: add token usage
-                        # TODO: For chat serialization doesn't include messages array
+                        # TODO: chat serialization doesn't include messages array
                         Log(
                             function_name=function_name,
                             config=config,

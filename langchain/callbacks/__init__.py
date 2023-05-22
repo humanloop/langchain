@@ -6,7 +6,7 @@ from langchain.callbacks.comet_ml_callback import CometCallbackHandler
 from langchain.callbacks.manager import (
     get_openai_callback,
     tracing_enabled,
-    humanloop_tracing_enabled
+    humanloop_tracing_enabled,
 )
 from langchain.callbacks.mlflow_callback import MlflowCallbackHandler
 from langchain.callbacks.openai_info import OpenAICallbackHandler

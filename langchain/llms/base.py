@@ -180,7 +180,7 @@ class BaseLLM(BaseLanguageModel, ABC):
             run_manager = callback_manager.on_llm_start(
                 serialized={"name": self.__class__.__name__, "_type": self._llm_type},
                 prompts=prompts,
-                invocation_params=params
+                invocation_params=params,
             )
             try:
                 output = (
@@ -248,7 +248,7 @@ class BaseLLM(BaseLanguageModel, ABC):
             run_manager = await callback_manager.on_llm_start(
                 serialized={"name": self.__class__.__name__, "_type": self._llm_type},
                 prompts=prompts,
-                invocation_params=params
+                invocation_params=params,
             )
             try:
                 output = (

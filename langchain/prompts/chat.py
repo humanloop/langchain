@@ -105,7 +105,7 @@ class ChatMessagePromptTemplate(BaseStringMessagePromptTemplate):
             content=text, role=self.role, additional_kwargs=self.additional_kwargs
         )
 
-    def dict(self,  **kwargs: Any) -> Dict:
+    def dict(self, **kwargs: Any) -> Dict:
         _dict = super().dict()
         _dict["role"] = self.role
         return _dict

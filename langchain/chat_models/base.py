@@ -75,7 +75,7 @@ class BaseChatModel(BaseLanguageModel, ABC):
         run_manager = callback_manager.on_chat_model_start(
             serialized={"name": self.__class__.__name__, "_type": self._llm_type},
             messages=messages,
-            invocation_params=params
+            invocation_params=params,
         )
 
         new_arg_supported = inspect.signature(self._generate).parameters.get(
@@ -113,7 +113,7 @@ class BaseChatModel(BaseLanguageModel, ABC):
         run_manager = await callback_manager.on_chat_model_start(
             serialized={"name": self.__class__.__name__, "_type": self._llm_type},
             messages=messages,
-            invocation_params=params
+            invocation_params=params,
         )
 
         new_arg_supported = inspect.signature(self._agenerate).parameters.get(

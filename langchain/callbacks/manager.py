@@ -918,9 +918,7 @@ def _configure(
             for handler in callback_manager.handlers
         ):
             if humanloop_tracer:
-                callback_manager.add_handler(
-                    handler=humanloop_tracer, inherit=True
-                )
+                callback_manager.add_handler(handler=humanloop_tracer, inherit=True)
             else:
                 callback_manager.add_handler(handler=HumanloopTracer(), inherit=True)
             # Always include StdOut handler when using Humanloop tracing
