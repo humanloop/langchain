@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any, Callable, List, Sequence, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, List, Sequence, Tuple, Type, TypeVar, Union, Dict
 
 from pydantic import BaseModel, Field
 
@@ -105,20 +105,31 @@ class ChatMessagePromptTemplate(BaseStringMessagePromptTemplate):
             content=text, role=self.role, additional_kwargs=self.additional_kwargs
         )
 
+    def dict(self,  **kwargs: Any) -> Dict:
+        _dict = super().dict()
+        _dict["role"] = self.role
+        return _dict
 
-class HumanMessagePromptTemplate(BaseStringMessagePromptTemplate):
+
+class HumanMessagePromptTemplate(ChatMessagePromptTemplate):
+    role: str = "human"
+
     def format(self, **kwargs: Any) -> BaseMessage:
         text = self.prompt.format(**kwargs)
         return HumanMessage(content=text, additional_kwargs=self.additional_kwargs)
 
 
 class AIMessagePromptTemplate(BaseStringMessagePromptTemplate):
+    role: str = "ai"
+
     def format(self, **kwargs: Any) -> BaseMessage:
         text = self.prompt.format(**kwargs)
         return AIMessage(content=text, additional_kwargs=self.additional_kwargs)
 
 
 class SystemMessagePromptTemplate(BaseStringMessagePromptTemplate):
+    role: str = "system"
+
     def format(self, **kwargs: Any) -> BaseMessage:
         text = self.prompt.format(**kwargs)
         return SystemMessage(content=text, additional_kwargs=self.additional_kwargs)
@@ -147,6 +158,10 @@ class BaseChatPromptTemplate(BasePromptTemplate, ABC):
     @abstractmethod
     def format_messages(self, **kwargs: Any) -> List[BaseMessage]:
         """Format kwargs into a list of messages."""
+
+    @property
+    def _prompt_type(self) -> str:
+        return "chat"
 
 
 class ChatPromptTemplate(BaseChatPromptTemplate, ABC):
@@ -213,10 +228,6 @@ class ChatPromptTemplate(BaseChatPromptTemplate, ABC):
         return result
 
     def partial(self, **kwargs: Union[str, Callable[[], str]]) -> BasePromptTemplate:
-        raise NotImplementedError
-
-    @property
-    def _prompt_type(self) -> str:
         raise NotImplementedError
 
     def save(self, file_path: Union[Path, str]) -> None:

@@ -21,6 +21,7 @@ from langchain.callbacks.base import (
 )
 from langchain.callbacks.openai_info import OpenAICallbackHandler
 from langchain.callbacks.stdout import StdOutCallbackHandler
+from langchain.callbacks.tracers.humanloop import HumanloopTracer
 from langchain.callbacks.tracers.langchain import LangChainTracer
 from langchain.callbacks.tracers.langchain_v1 import LangChainTracerV1, TracerSessionV1
 from langchain.callbacks.tracers.schemas import TracerSession
@@ -49,6 +50,9 @@ tracing_v2_callback_var: ContextVar[
 ] = ContextVar(  # noqa: E501
     "tracing_callback_v2", default=None
 )
+humanloop_callback_var: ContextVar[Optional[HumanloopTracer]] = ContextVar(
+    "humanloop_callback", default=None
+)
 
 
 def _get_debug() -> bool:
@@ -62,6 +66,15 @@ def get_openai_callback() -> Generator[OpenAICallbackHandler, None, None]:
     openai_callback_var.set(cb)
     yield cb
     openai_callback_var.set(None)
+
+
+@contextmanager
+def humanloop_tracing_enabled() -> Generator[OpenAICallbackHandler, None, None]:
+    """Get Humanloop tracer in a context manager."""
+    humanloop_callback = HumanloopTracer()
+    humanloop_callback_var.set(humanloop_callback)
+    yield humanloop_callback
+    humanloop_callback_var.set(None)
 
 
 @contextmanager
@@ -832,6 +845,10 @@ def _configure(
 
     tracer = tracing_callback_var.get()
     open_ai = openai_callback_var.get()
+    humanloop_tracer = humanloop_callback_var.get()
+    humanloop_enabled_ = (
+        os.environ.get("HUMANLOOP_TRACING") is not None or humanloop_tracer is not None
+    )
     tracing_enabled_ = (
         os.environ.get("LANGCHAIN_TRACING") is not None
         or tracer is not None
@@ -852,6 +869,7 @@ def _configure(
         or tracing_enabled_
         or tracing_v2_enabled_
         or open_ai is not None
+        or humanloop_enabled_
     ):
         if verbose and not any(
             isinstance(handler, StdOutCallbackHandler)
@@ -894,4 +912,22 @@ def _configure(
             for handler in callback_manager.handlers
         ):
             callback_manager.add_handler(open_ai, True)
+
+        if humanloop_enabled_ and not any(
+            isinstance(handler, HumanloopTracer)
+            for handler in callback_manager.handlers
+        ):
+            if humanloop_tracer:
+                callback_manager.add_handler(
+                    handler=humanloop_tracer, inherit=True
+                )
+            else:
+                callback_manager.add_handler(handler=HumanloopTracer(), inherit=True)
+            # Always include StdOut handler when using Humanloop tracing
+            if not any(
+                isinstance(handler, StdOutCallbackHandler)
+                for handler in callback_manager.handlers
+            ):
+                callback_manager.add_handler(StdOutCallbackHandler(), True)
+
     return callback_manager

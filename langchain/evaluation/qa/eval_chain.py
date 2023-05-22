@@ -59,6 +59,10 @@ class QAEvalChain(LLMChain):
 
         return self.apply(inputs)
 
+    @property
+    def _chain_type(self) -> str:
+        return "eval_chain"
+
 
 class ContextQAEvalChain(LLMChain):
     """LLM Chain specifically for evaluating QA w/o GT based on context"""

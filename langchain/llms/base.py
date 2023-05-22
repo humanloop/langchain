@@ -178,7 +178,9 @@ class BaseLLM(BaseLanguageModel, ABC):
                     "Asked to cache, but no cache found at `langchain.cache`."
                 )
             run_manager = callback_manager.on_llm_start(
-                {"name": self.__class__.__name__}, prompts, invocation_params=params
+                serialized={"name": self.__class__.__name__, "_type": self._llm_type},
+                prompts=prompts,
+                invocation_params=params
             )
             try:
                 output = (
@@ -193,8 +195,8 @@ class BaseLLM(BaseLanguageModel, ABC):
             return output
         if len(missing_prompts) > 0:
             run_manager = callback_manager.on_llm_start(
-                {"name": self.__class__.__name__},
-                missing_prompts,
+                serialized={"name": self.__class__.__name__, "_type": self._llm_type},
+                prompts=missing_prompts,
                 invocation_params=params,
             )
             try:
@@ -244,7 +246,9 @@ class BaseLLM(BaseLanguageModel, ABC):
                     "Asked to cache, but no cache found at `langchain.cache`."
                 )
             run_manager = await callback_manager.on_llm_start(
-                {"name": self.__class__.__name__}, prompts, invocation_params=params
+                serialized={"name": self.__class__.__name__, "_type": self._llm_type},
+                prompts=prompts,
+                invocation_params=params
             )
             try:
                 output = (
@@ -259,8 +263,8 @@ class BaseLLM(BaseLanguageModel, ABC):
             return output
         if len(missing_prompts) > 0:
             run_manager = await callback_manager.on_llm_start(
-                {"name": self.__class__.__name__},
-                missing_prompts,
+                serialized={"name": self.__class__.__name__, "_type": self._llm_type},
+                prompts=missing_prompts,
                 invocation_params=params,
             )
             try:
@@ -326,11 +330,6 @@ class BaseLLM(BaseLanguageModel, ABC):
         """Get a string representation of the object for printing."""
         cls_name = f"\033[1m{self.__class__.__name__}\033[0m"
         return f"{cls_name}\nParams: {self._identifying_params}"
-
-    @property
-    @abstractmethod
-    def _llm_type(self) -> str:
-        """Return type of llm."""
 
     def dict(self, **kwargs: Any) -> Dict:
         """Return a dictionary of the LLM."""

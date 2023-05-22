@@ -179,6 +179,7 @@ class BasePromptTemplate(BaseModel, ABC):
         """
 
     @property
+    @abstractmethod
     def _prompt_type(self) -> str:
         """Return the prompt type key."""
         raise NotImplementedError

@@ -238,8 +238,12 @@ class BaseTool(ABC, BaseModel, metaclass=ToolMetaclass):
         # TODO: maybe also pass through run_manager is _run supports kwargs
         new_arg_supported = signature(self._run).parameters.get("run_manager")
         run_manager = callback_manager.on_tool_start(
-            {"name": self.name, "description": self.description},
-            tool_input if isinstance(tool_input, str) else str(tool_input),
+            serialized={
+                "name": self.name,
+                "description": self.description,
+                **self.dict(),
+            },
+            input_str=tool_input if isinstance(tool_input, str) else str(tool_input),
             color=start_color,
             **kwargs,
         )
@@ -276,8 +280,12 @@ class BaseTool(ABC, BaseModel, metaclass=ToolMetaclass):
         )
         new_arg_supported = signature(self._arun).parameters.get("run_manager")
         run_manager = await callback_manager.on_tool_start(
-            {"name": self.name, "description": self.description},
-            tool_input if isinstance(tool_input, str) else str(tool_input),
+            serialized={
+                "name": self.name,
+                "description": self.description,
+                **self.dict(),
+            },
+            input_str=tool_input if isinstance(tool_input, str) else str(tool_input),
             color=start_color,
             **kwargs,
         )

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Sequence, Set
+from typing import List, Optional, Sequence, Set, Mapping, Any, Dict
 
 from pydantic import BaseModel
 
@@ -78,3 +78,19 @@ class BaseLanguageModel(BaseModel, ABC):
             if field.has_alias:
                 all_required_field_names.add(field.alias)
         return all_required_field_names
+
+    @property
+    @abstractmethod
+    def _llm_type(self) -> str:
+        """Return type of llm."""
+
+    @property
+    @abstractmethod
+    def _identifying_params(self) -> Mapping[str, Any]:
+        """Get the identifying parameters."""
+
+    def dict(self, **kwargs: Any) -> Dict:
+        """Return a dictionary of the LLM."""
+        dict_ = dict(self._identifying_params)
+        dict_["_type"] = self._llm_type
+        return dict_

@@ -126,8 +126,8 @@ class Chain(BaseModel, ABC):
         )
         new_arg_supported = inspect.signature(self._call).parameters.get("run_manager")
         run_manager = callback_manager.on_chain_start(
-            {"name": self.__class__.__name__},
-            inputs,
+            serialized={"name": self.__class__.__name__, **self.dict()},
+            inputs=inputs,
         )
         try:
             outputs = (
@@ -164,8 +164,8 @@ class Chain(BaseModel, ABC):
         )
         new_arg_supported = inspect.signature(self._acall).parameters.get("run_manager")
         run_manager = await callback_manager.on_chain_start(
-            {"name": self.__class__.__name__},
-            inputs,
+            serialized={"name": self.__class__.__name__, **self.dict()},
+            inputs=inputs,
         )
         try:
             outputs = (

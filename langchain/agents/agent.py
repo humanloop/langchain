@@ -391,7 +391,6 @@ class Agent(BaseSingleActionAgent):
     def dict(self, **kwargs: Any) -> Dict:
         """Return dictionary representation of agent."""
         _dict = super().dict()
-        del _dict["output_parser"]
         return _dict
 
     def get_allowed_tools(self) -> Optional[List[str]]:
@@ -629,6 +628,11 @@ class AgentExecutor(Chain):
     handle_parsing_errors: Union[
         bool, str, Callable[[OutputParserException], str]
     ] = False
+
+    @property
+    def _chain_type(self) -> str:
+        """Snake-case string identifier for the chain type."""
+        return "agent_executor_chain"
 
     @classmethod
     def from_agent_and_tools(
