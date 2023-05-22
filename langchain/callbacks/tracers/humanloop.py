@@ -274,7 +274,9 @@ class HumanloopTracer(BaseTracer, ABC):
             config=config,
             inputs=self._convert_chain_inputs_to_text(inputs=run.inputs),
             error=run.error,
-            output=self._convert_chain_outputs_to_text(run.outputs),
+            output=self._convert_chain_outputs_to_text(run.outputs)
+            if run.outputs is not None
+            else None,
             created_at=run.end_time,
             duration=duration,
             metadata=metadata,
@@ -294,7 +296,9 @@ class HumanloopTracer(BaseTracer, ABC):
             config=config,
             inputs=self._convert_chain_inputs_to_text(inputs=run.inputs),
             error=run.error,
-            output=self._convert_chain_outputs_to_text(run.outputs),
+            output=self._convert_chain_outputs_to_text(run.outputs)
+            if run.outputs is not None
+            else None,
             created_at=run.end_time,
             duration=duration,
             metadata=metadata,
@@ -327,7 +331,9 @@ class HumanloopTracer(BaseTracer, ABC):
                 other=run.extra,
             ),
             inputs=run.inputs,
-            output=self._convert_chain_outputs_to_text(run.outputs),
+            output=self._convert_chain_outputs_to_text(run.outputs)
+            if run.outputs is not None
+            else None,
             error=run.error,
             metadata=metadata,
             created_at=run.end_time,
@@ -592,8 +598,8 @@ class Log(BaseModel):
         "template, or directly by your project.",
     )
     output: Optional[str] = Field(
-        title="Project output",
-        description="Generated output from your project for the provided inputs.",
+        title="Model output",
+        description="Generated output from your model for the provided inputs. Can be None if error encountered.",
     )
     error: Optional[str] = Field(
         title="Log error",
