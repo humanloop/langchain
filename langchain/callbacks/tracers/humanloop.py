@@ -255,7 +255,7 @@ class HumanloopTracer(BaseTracer, ABC):
                     description=tool["description"],
                     source=self._get_tool_source_from_function(
                         tool["name"], tool["func"]
-                    ),
+                    ) if "func" in tool else None,
                 )
                 for tool in run.serialized["tools"]
             ],
@@ -327,7 +327,7 @@ class HumanloopTracer(BaseTracer, ABC):
                 description=run.serialized["description"],
                 source=self._get_tool_source_from_function(
                     function_name, run.serialized["func"]
-                ),
+                ) if "func" in run.serialized else None,
                 other=run.extra,
             ),
             inputs=run.inputs,
