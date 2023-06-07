@@ -272,9 +272,10 @@ class Chain(BaseModel, ABC):
 
     def dict(self, **kwargs: Any) -> Dict:
         """Return dictionary representation of chain."""
-        if self.memory is not None:
-            raise ValueError("Saving of memory is not yet supported.")
         _dict = super().dict()
+        if self.memory is not None:
+            warnings.warn("Serializing memory details not yet supported.")
+            _dict["_memory"] = self.memory.load_memory_variables(inputs={})
         _dict["_type"] = self._chain_type
         return _dict
 
